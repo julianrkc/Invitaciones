@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Invitación boda Juli & Anlex</title>
+  <title>Invitación Boda Juli & Alex</title>
   <style>
     body {
       margin: 0;
@@ -16,7 +16,8 @@
     // Escena 3D
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
@@ -34,8 +35,19 @@
     const cardGeometry = new THREE.PlaneGeometry(cardWidth, cardHeight);
 
     // Crear texturas para el frente y el reverso
-    const textureFront = new THREE.TextureLoader().load('https://i.imgur.com/u50k2nG.jpg');
-    const textureBack = new THREE.TextureLoader().load('https://i.imgur.com/eznklmM.jpg');
+    const textureLoader = new THREE.TextureLoader();
+
+    const textureFront = textureLoader.load('https://i.imgur.com/u50k2nG.jpg', (texture) => {
+    texture.minFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+});
+
+    const textureBack = textureLoader.load('https://i.imgur.com/eznklmM.jpg', (texture) => {
+    texture.minFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+});
+
+
 
     // Materiales para cada cara (usamos MeshBasicMaterial para evitar sombras y efectos de iluminación)
     const frontMaterial = new THREE.MeshBasicMaterial({ map: textureFront, side: THREE.FrontSide });
@@ -134,7 +146,7 @@
     // Posición de la cámara
     camera.position.z = 5;
 
-    // Interacción con el ratón
+    // Interacción con el ratón y el toque
     let isDragging = false;
     let initialMouseX, initialMouseY;
 
@@ -162,6 +174,33 @@
       initialMouseY = event.clientY;
     });
 
+    // Manejar toques en dispositivos móviles
+    document.addEventListener('touchstart', (event) => {
+      if (event.touches.length === 1) {
+        isDragging = true;
+        initialMouseX = event.touches[0].clientX;
+        initialMouseY = event.touches[0].clientY;
+      }
+    });
+
+    document.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+
+    document.addEventListener('touchmove', (event) => {
+      if (!isDragging || event.touches.length !== 1) return;
+
+      const deltaX = event.touches[0].clientX - initialMouseX;
+      const deltaY = event.touches[0].clientY - initialMouseY;
+
+      // Rotamos el grupo de la tarjeta
+      cardGroup.rotation.y += deltaX / 100;
+      cardGroup.rotation.x += deltaY / 100;
+
+      initialMouseX = event.touches[0].clientX;
+      initialMouseY = event.touches[0].clientY;
+    });
+
     // Función para redirigir al hacer clic en el botón
     buttonMesh.userData = {
       onClick: () => {
@@ -170,19 +209,19 @@
     };
 
     window.addEventListener('click', (event) => {
-      const mouse = new THREE.Vector2(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1
-      );
+  const mouse = new THREE.Vector2(
+    (event.clientX / window.innerWidth) * 2 - 1,
+    -(event.clientY / window.innerHeight) * 2 + 1
+  );
 
-      const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(mouse, camera);
-      
-      const intersects = raycaster.intersectObject(buttonMesh);
-      if (intersects.length > 0) {
-        buttonMesh.userData.onClick();
-      }
-    });
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersects = raycaster.intersectObject(buttonMesh);
+  if (intersects.length > 0) {
+    buttonMesh.userData.onClick();
+  }
+});
 
     // Animación
     function animate() {
