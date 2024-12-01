@@ -225,7 +225,7 @@ document.body.appendChild(renderer.domElement);
       const touch = event.touches[0];
   const touchPosition = new THREE.Vector2(
     (touch.clientX / window.innerWidth) * 2 - 1,
-    -(touch.clientY / window.innerHeight) * 2 + 1
+    -((touch.clientY + 10)  / window.innerHeight) * 2 + 1
   );
 
       // Rotamos el grupo de la tarjeta
