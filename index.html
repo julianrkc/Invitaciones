@@ -10,7 +10,7 @@
     }
   </style>
 
-    <!-- Metaetiquetas para Open Graph --> 
+  <!-- Metaetiquetas para Open Graph --> 
    <meta property="og:title" content="Invitación Boda Juli & Alex"> 
    <meta property="og:description" content="¡Estás invitado a nuestra boda!"> 
    <meta property="og:image" content="https://i.imgur.com/u50k2nG.jpg"> 
@@ -234,11 +234,135 @@
   }
 });
 
-    // Animación
-    function animate() {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
+let angle = 0;
+let isInteracting = false;
+let isFront = true; // Variable para rastrear la cara actual de la tarjeta
+let targetRotationY = 0; // Variable para rastrear la rotación objetivo
+let startRotationY = 0;
+let isFlipping = false; // Variable para evitar que se haga flip múltiples veces
+
+// Animación
+function animate() {
+  requestAnimationFrame(animate);
+
+  if (!isInteracting) {
+    // Movimiento vibrante de balanceo
+    angle += 0.05;
+    cardGroup.rotation.y = targetRotationY + 0.1 * Math.sin(angle);
+  }
+
+  renderer.render(scene, camera);
+}
+animate();
+
+// Función para girar la tarjeta
+function flipCard() {
+  if (isFlipping) return;
+  isFlipping = true;
+
+  // Comprobar la cara actual de la tarjeta
+  const currentRotation = (Math.abs(cardGroup.rotation.y) % (2 * Math.PI));
+  const shouldFlipToBack = currentRotation < Math.PI / 2 || currentRotation > (3 * Math.PI) / 2;
+
+  const rotationAngle = shouldFlipToBack ? Math.PI : 0;
+  const flipDuration = 500; // Duración de la animación en milisegundos
+
+  // Animación de la tarjeta para girarla
+  const startTime = performance.now();
+  function flipAnimation(time) {
+    const progress = (time - startTime) / flipDuration;
+    if (progress < 1) {
+      cardGroup.rotation.y = THREE.MathUtils.lerp(startRotationY, rotationAngle, progress);
+      requestAnimationFrame(flipAnimation);
+    } else {
+      cardGroup.rotation.y = rotationAngle;
+      isFront = !isFront; // Alternar la cara actual al final de la animación
+      targetRotationY = rotationAngle; // Actualizar la rotación objetivo
+      isFlipping = false;
     }
-    animate();
+  }
+  requestAnimationFrame(flipAnimation);
+}
+
+// Función para ajustar la tarjeta a la cara más cercana
+function adjustCard() {
+  const currentRotation = (Math.abs(cardGroup.rotation.y) % (2 * Math.PI));
+  const closestFace = currentRotation < Math.PI / 2 || (currentRotation > (3 * Math.PI) / 2 && currentRotation < (2 * Math.PI)) ? 0 : Math.PI;
+
+  const adjustDuration = 300; // Duración de la animación para ajustar
+  const startTime = performance.now();
+  function adjustAnimation(time) {
+    const progress = (time - startTime) / adjustDuration;
+    if (progress < 1) {
+      cardGroup.rotation.y = THREE.MathUtils.lerp(cardGroup.rotation.y, closestFace, progress);
+      requestAnimationFrame(adjustAnimation);
+    } else {
+      cardGroup.rotation.y = closestFace;
+      targetRotationY = closestFace;
+      isFront = (closestFace === 0); // Actualizar la cara actual
+    }
+  }
+  requestAnimationFrame(adjustAnimation);
+}
+
+// Interacción con el ratón y el toque
+document.addEventListener('mousedown', (event) => {
+  isInteracting = true;
+  initialMouseX = event.clientX;
+  initialMouseY = event.clientY;
+  startRotationY = cardGroup.rotation.y;
+});
+
+document.addEventListener('mouseup', (event) => {
+  isInteracting = false;
+  adjustCard(); // Ajustar la tarjeta a la cara más cercana al soltar el ratón
+});
+
+document.addEventListener('mousemove', (event) => {
+  if (!isInteracting) return;
+
+  const deltaX = event.clientX - initialMouseX;
+  const deltaY = event.clientY - initialMouseY;
+
+  // Rotamos el grupo de la tarjeta en ambas direcciones
+  cardGroup.rotation.y += deltaX / 100;
+  cardGroup.rotation.x += deltaY / 100;
+
+  targetRotationY = cardGroup.rotation.y; // Actualizar la rotación objetivo
+
+  initialMouseX = event.clientX;
+  initialMouseY = event.clientY;
+});
+
+document.addEventListener('touchstart', (event) => {
+  if (event.touches.length === 1) {
+    isInteracting = true;
+    initialMouseX = event.touches[0].clientX;
+    initialMouseY = event.touches[0].clientY;
+    startRotationY = cardGroup.rotation.y;
+  }
+});
+
+document.addEventListener('touchend', (event) => {
+  isInteracting = false;
+  adjustCard(); // Ajustar la tarjeta a la cara más cercana al soltar el toque
+});
+
+document.addEventListener('touchmove', (event) => {
+  if (!isInteracting || event.touches.length !== 1) return;
+
+  const deltaX = event.touches[0].clientX - initialMouseX;
+  const deltaY = event.touches[0].clientY - initialMouseY;
+
+  // Rotamos el grupo de la tarjeta en ambas direcciones
+  cardGroup.rotation.y += deltaX / 100;
+  cardGroup.rotation.x += deltaY / 100;
+
+  targetRotationY = cardGroup.rotation.y; // Actualizar la rotación objetivo
+
+  initialMouseX = event.touches[0].clientX;
+  initialMouseY = event.touches[0].clientY;
+});
+
   </script>
-</body
+</body>
