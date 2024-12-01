@@ -134,7 +134,7 @@
     // Posición de la cámara
     camera.position.z = 5;
 
-    // Interacción con el ratón
+    // Interacción con el ratón y el toque
     let isDragging = false;
     let initialMouseX, initialMouseY;
 
@@ -162,6 +162,33 @@
       initialMouseY = event.clientY;
     });
 
+    // Manejar toques en dispositivos móviles
+    document.addEventListener('touchstart', (event) => {
+      if (event.touches.length === 1) {
+        isDragging = true;
+        initialMouseX = event.touches[0].clientX;
+        initialMouseY = event.touches[0].clientY;
+      }
+    });
+
+    document.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+
+    document.addEventListener('touchmove', (event) => {
+      if (!isDragging || event.touches.length !== 1) return;
+
+      const deltaX = event.touches[0].clientX - initialMouseX;
+      const deltaY = event.touches[0].clientY - initialMouseY;
+
+      // Rotamos el grupo de la tarjeta
+      cardGroup.rotation.y += deltaX / 100;
+      cardGroup.rotation.x += deltaY / 100;
+
+      initialMouseX = event.touches[0].clientX;
+      initialMouseY = event.touches[0].clientY;
+    });
+
     // Función para redirigir al hacer clic en el botón
     buttonMesh.userData = {
       onClick: () => {
@@ -170,26 +197,26 @@
     };
 
     window.addEventListener('click', (event) => {
-      const mouse = new THREE.Vector2(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1
-      );
+  const mouse = new THREE.Vector2(
+    (event.clientX / window.innerWidth) * 2 - 1,
+    -(event.clientY / window.innerHeight) * 2 + 1
+  );
 
-      const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(mouse, camera);
-      
-      const intersects = raycaster.intersectObject(buttonMesh);
-      if (intersects.length > 0) {
-        buttonMesh.userData.onClick();
-      }
-    });
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
 
-    // Animación
-    function animate() {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
-    }
-    animate();
-  </script>
-</body>
-</html>
+  const intersects = raycaster.intersectObject(buttonMesh);
+  if (intersects.length > 0) {
+    buttonMesh.userData.onClick();
+  }
+});
+
+// Animación
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+}
+animate();
+ </script>
+ </body> 
+ </html>
