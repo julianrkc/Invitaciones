@@ -222,8 +222,11 @@ document.body.appendChild(renderer.domElement);
     document.addEventListener('touchmove', (event) => {
       if (!isDragging || event.touches.length !== 1) return;
 
-      const deltaX = event.touches[0].clientX - initialMouseX;
-      const deltaY = event.touches[0].clientY - initialMouseY;
+      const touch = event.touches[0];
+  const touchPosition = new THREE.Vector2(
+    (touch.clientX / window.innerWidth) * 2 - 1,
+    -(touch.clientY / window.innerHeight) * 2 + 1
+  );
 
       // Rotamos el grupo de la tarjeta
       cardGroup.rotation.y += deltaX / 100;
