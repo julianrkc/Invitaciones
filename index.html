@@ -16,7 +16,8 @@
     // Escena 3D
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
@@ -34,8 +35,19 @@
     const cardGeometry = new THREE.PlaneGeometry(cardWidth, cardHeight);
 
     // Crear texturas para el frente y el reverso
-    const textureFront = new THREE.TextureLoader().load('https://i.imgur.com/u50k2nG.jpg');
-    const textureBack = new THREE.TextureLoader().load('https://i.imgur.com/eznklmM.jpg');
+    const textureLoader = new THREE.TextureLoader();
+
+    const textureFront = textureLoader.load('https://i.imgur.com/u50k2nG.jpg', (texture) => {
+    texture.minFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+});
+
+    const textureBack = textureLoader.load('https://i.imgur.com/eznklmM.jpg', (texture) => {
+    texture.minFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+});
+
+
 
     // Materiales para cada cara (usamos MeshBasicMaterial para evitar sombras y efectos de iluminación)
     const frontMaterial = new THREE.MeshBasicMaterial({ map: textureFront, side: THREE.FrontSide });
@@ -211,12 +223,11 @@
   }
 });
 
-// Animación
-function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
-}
-animate();
- </script>
- </body> 
- </html>
+    // Animación
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body
