@@ -4,9 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invitación Boda Juli & Alex</title>
+
   <style>
+    /* Establecer fondo con CSS */
     body {
       margin: 0;
+      height: 100vh; /* Asegura que el body tenga la altura completa de la ventana */
+      background-image: url('https://i.imgur.com/UqC5I5z.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden; /* Para evitar scroll */
+    }
+  
+    canvas {
+      display: block; /* Asegura que no haya márgenes extraños */
     }
   </style>
 
@@ -21,16 +36,23 @@
    <meta name="twitter:description" content="¡Estás invitado a nuestra boda!"> 
    <meta name="twitter:image" content="https://i.imgur.com/u50k2nG.jpg">
 </head>
-<body>
+<body class="background">
   <script src="https://cdn.jsdelivr.net/npm/three@0.147/build/three.min.js"></script>
   <script>
     // Escena 3D
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    // Establecer el renderer con fondo transparente
+const renderer = new THREE.WebGLRenderer({ 
+  antialias: true, 
+  powerPreference: 'high-performance',
+  alpha: true // Fondo transparente
+});
+
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
 
     // Agregamos una luz básica para iluminar la escena
     const light = new THREE.PointLight(0xffffff, 1, 100);
@@ -57,7 +79,6 @@
     texture.minFilter = THREE.LinearFilter;
     texture.generateMipmaps = false;
 });
-
 
 
     // Materiales para cada cara (usamos MeshBasicMaterial para evitar sombras y efectos de iluminación)
@@ -247,7 +268,7 @@ function animate() {
 
   if (!isInteracting) {
     // Movimiento vibrante de balanceo
-    angle += 0.05;
+    angle += 0.02;
     cardGroup.rotation.y = targetRotationY + 0.1 * Math.sin(angle);
   }
 
