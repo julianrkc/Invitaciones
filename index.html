@@ -358,6 +358,49 @@ document.addEventListener('mousemove', (event) => {
   initialMouseY = event.clientY;
 });
 
+// 2. El nuevo código para detectar el toque en el botón
+document.addEventListener('touchstart', (event) => {
+  if (event.touches.length === 1) {
+    const touch = event.touches[0];
+    // Convertir las coordenadas del toque a las coordenadas normalizadas de la cámara
+    const touchPosition = new THREE.Vector2(
+      (touch.clientX / window.innerWidth) * 2 - 1,
+      -(touch.clientY / window.innerHeight) * 2 + 1
+    );
+// Crear un raycaster con la posición de la cámara y el toque
+const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(touchPosition, camera);
+
+    // Detectar si el rayo interseca con el botón
+    const intersects = raycaster.intersectObject(buttonMesh);
+
+    if (intersects.length > 0) {
+      // Si el rayo interseca con el botón, ejecutar la acción
+      buttonMesh.userData.onClick();
+    }
+  }
+});
+
+// También puedes añadir un evento touchmove si quieres que la interacción continúe
+document.addEventListener('touchmove', (event) => {
+  if (event.touches.length !== 1) return;
+
+  const touch = event.touches[0];
+  const touchPosition = new THREE.Vector2(
+    (touch.clientX / window.innerWidth) * 2 - 1,
+    -(touch.clientY / window.innerHeight) * 2 + 1
+  );
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(touchPosition, camera);
+
+  const intersects = raycaster.intersectObject(buttonMesh);
+  if (intersects.length > 0) {
+    // Si el dedo está sobre el botón, también puede ejecutarse la acción
+    buttonMesh.userData.onClick();
+  }
+});
+
 document.addEventListener('touchstart', (event) => {
   if (event.touches.length === 1) {
     isInteracting = true;
