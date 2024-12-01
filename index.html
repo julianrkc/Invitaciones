@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invitación Boda Juli & Alex</title>
+<!-- Añadir un marcador de área en el cuerpo del HTML -->
+<div id="touchAreaMarker" style="position: absolute; background-color: rgba(255, 0, 0, 0.3); border: 2px solid red; display: none;"></div>
 
   <style>
     /* Establecer fondo con CSS */
@@ -225,7 +227,7 @@ document.body.appendChild(renderer.domElement);
       const touch = event.touches[0];
   const touchPosition = new THREE.Vector2(
     (touch.clientX / window.innerWidth) * 2 - 1,
-    -((touch.clientY -550)  / window.innerHeight) * 2 + 1
+    -((touch.clientY + 10)  / window.innerHeight) * 2 + 1
   );
 
       // Rotamos el grupo de la tarjeta
@@ -430,6 +432,62 @@ document.addEventListener('touchmove', (event) => {
   initialMouseX = event.touches[0].clientX;
   initialMouseY = event.touches[0].clientY;
 });
+// Obtener el marcador del área de toque
+const touchAreaMarker = document.getElementById('touchAreaMarker');
+
+// Función para actualizar el área activa del toque
+function updateTouchAreaMarker() {
+  // Obtener las posiciones y dimensiones del botón
+  const buttonBounds = buttonMesh.geometry.boundingBox; // Obtener los límites del botón
+  buttonMesh.updateMatrixWorld(); // Actualizar la matriz mundial para obtener la posición global
+
+  // Convertir las coordenadas del botón a coordenadas de la pantalla
+  const topLeft = new THREE.Vector3(-buttonWidth / 2, buttonHeight / 2, buttonMesh.position.z);
+  const topRight = new THREE.Vector3(buttonWidth / 2, buttonHeight / 2, buttonMesh.position.z);
+  const bottomLeft = new THREE.Vector3(-buttonWidth / 2, -buttonHeight / 2, buttonMesh.position.z);
+  const bottomRight = new THREE.Vector3(buttonWidth / 2, -buttonHeight / 2, buttonMesh.position.z);
+
+  // Convertir las posiciones a las coordenadas de la pantalla
+  topLeft.applyMatrix4(buttonMesh.matrixWorld);
+  topRight.applyMatrix4(buttonMesh.matrixWorld);
+  bottomLeft.applyMatrix4(buttonMesh.matrixWorld);
+  bottomRight.applyMatrix4(buttonMesh.matrixWorld);
+
+  // Convertir las coordenadas 3D a coordenadas 2D en la pantalla
+  const screenTopLeft = projectToScreen(topLeft);
+  const screenTopRight = projectToScreen(topRight);
+  const screenBottomLeft = projectToScreen(bottomLeft);
+  const screenBottomRight = projectToScreen(bottomRight);
+
+  // Calcular las dimensiones y la posición del área activa
+  const width = screenTopRight.x - screenTopLeft.x;
+  const height = screenTopLeft.y - screenBottomLeft.y;
+  const left = screenTopLeft.x;
+  const top = screenTopLeft.y;
+
+  // Actualizar el estilo del área activa
+  touchAreaMarker.style.display = 'block'; // Mostrar el área activa
+  touchAreaMarker.style.left = left + 'px';
+  touchAreaMarker.style.top = top + 'px';
+  touchAreaMarker.style.width = width + 'px';
+  touchAreaMarker.style.height = height + 'px';
+}
+
+// Función para proyectar las coordenadas 3D a 2D
+function projectToScreen(vector) {
+  const widthHalf = window.innerWidth / 2;
+  const heightHalf = window.innerHeight / 2;
+
+  vector.project(camera);
+
+  return {
+    x: (vector.x * widthHalf) + widthHalf,
+    y: -(vector.y * heightHalf) + heightHalf,
+  };
+}
+
+// Llamar a la función para actualizar el área activa cuando se cargue la escena
+updateTouchAreaMarker();
 
   </script>
 </body>
