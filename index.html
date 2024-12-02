@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invitación Boda Juli & Alex</title>
-<!-- Añadir un marcador de área en el cuerpo del HTML -->
-<div id="touchAreaMarker" style="position: absolute; background-color: rgba(255, 0, 0, 0.3); border: 2px solid red; display: none;"></div>
 
   <style>
     /* Establecer fondo con CSS */
@@ -21,7 +19,7 @@
       align-items: center;
       overflow: hidden; /* Para evitar scroll */
     }
-  
+
     canvas {
       display: block; /* Asegura que no haya márgenes extraños */
     }
@@ -30,12 +28,14 @@
   <!-- Metaetiquetas para Open Graph --> 
    <meta property="og:title" content="Invitación Boda Juli & Alex"> 
    <meta property="og:description" content="¡Estás invitado a nuestra boda!"> 
+   <meta property="og:image" content="https://i.imgur.com/a4T0Fcvs.png"> 
    <meta property="og:image" content="https://i.imgur.com/a4T0Fcv.png"> 
    <meta property="og:url" content="https://julianrkc.github.io/Invitaciones/"> 
    <meta property="og:type" content="website"> <!-- Metaetiquetas para Twitter Card --> 
    <meta name="twitter:card" content="summary_large_image"> 
    <meta name="twitter:title" content="Invitación Boda Juli & Alex"> 
    <meta name="twitter:description" content="¡Estás invitado a nuestra boda!"> 
+   <meta name="twitter:image" content="https://i.imgur.com/a4T0Fcvs.png">
    <meta name="twitter:image" content="https://i.imgur.com/a4T0Fcv.png">
 </head>
 <body class="background">
@@ -224,11 +224,8 @@ document.body.appendChild(renderer.domElement);
     document.addEventListener('touchmove', (event) => {
       if (!isDragging || event.touches.length !== 1) return;
 
-      const touch = event.touches[0];
-  const touchPosition = new THREE.Vector2(
-    (touch.clientX / window.innerWidth) * 2 - 1,
-    -((touch.clientY + 10)  / window.innerHeight) * 2 + 1
-  );
+      const deltaX = event.touches[0].clientX - initialMouseX;
+      const deltaY = event.touches[0].clientY - initialMouseY;
 
       // Rotamos el grupo de la tarjeta
       cardGroup.rotation.y += deltaX / 100;
@@ -360,49 +357,6 @@ document.addEventListener('mousemove', (event) => {
   initialMouseY = event.clientY;
 });
 
-// 2. El nuevo código para detectar el toque en el botón
-document.addEventListener('touchstart', (event) => {
-  if (event.touches.length === 1) {
-    const touch = event.touches[0];
-    // Convertir las coordenadas del toque a las coordenadas normalizadas de la cámara
-    const touchPosition = new THREE.Vector2(
-      (touch.clientX / window.innerWidth) * 2 - 1,
-      -(touch.clientY / window.innerHeight) * 2 + 1
-    );
-// Crear un raycaster con la posición de la cámara y el toque
-const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(touchPosition, camera);
-
-    // Detectar si el rayo interseca con el botón
-    const intersects = raycaster.intersectObject(buttonMesh);
-
-    if (intersects.length > 0) {
-      // Si el rayo interseca con el botón, ejecutar la acción
-      buttonMesh.userData.onClick();
-    }
-  }
-});
-
-// También puedes añadir un evento touchmove si quieres que la interacción continúe
-document.addEventListener('touchmove', (event) => {
-  if (event.touches.length !== 1) return;
-
-  const touch = event.touches[0];
-  const touchPosition = new THREE.Vector2(
-    (touch.clientX / window.innerWidth) * 2 - 1,
-    -(touch.clientY / window.innerHeight) * 2 + 1
-  );
-
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(touchPosition, camera);
-
-  const intersects = raycaster.intersectObject(buttonMesh);
-  if (intersects.length > 0) {
-    // Si el dedo está sobre el botón, también puede ejecutarse la acción
-    buttonMesh.userData.onClick();
-  }
-});
-
 document.addEventListener('touchstart', (event) => {
   if (event.touches.length === 1) {
     isInteracting = true;
@@ -432,62 +386,6 @@ document.addEventListener('touchmove', (event) => {
   initialMouseX = event.touches[0].clientX;
   initialMouseY = event.touches[0].clientY;
 });
-// Obtener el marcador del área de toque
-const touchAreaMarker = document.getElementById('touchAreaMarker');
-
-// Función para actualizar el área activa del toque
-function updateTouchAreaMarker() {
-  // Obtener las posiciones y dimensiones del botón
-  const buttonBounds = buttonMesh.geometry.boundingBox; // Obtener los límites del botón
-  buttonMesh.updateMatrixWorld(); // Actualizar la matriz mundial para obtener la posición global
-
-  // Convertir las coordenadas del botón a coordenadas de la pantalla
-  const topLeft = new THREE.Vector3(-buttonWidth / 2, buttonHeight / 2, buttonMesh.position.z);
-  const topRight = new THREE.Vector3(buttonWidth / 2, buttonHeight / 2, buttonMesh.position.z);
-  const bottomLeft = new THREE.Vector3(-buttonWidth / 2, -buttonHeight / 2, buttonMesh.position.z);
-  const bottomRight = new THREE.Vector3(buttonWidth / 2, -buttonHeight / 2, buttonMesh.position.z);
-
-  // Convertir las posiciones a las coordenadas de la pantalla
-  topLeft.applyMatrix4(buttonMesh.matrixWorld);
-  topRight.applyMatrix4(buttonMesh.matrixWorld);
-  bottomLeft.applyMatrix4(buttonMesh.matrixWorld);
-  bottomRight.applyMatrix4(buttonMesh.matrixWorld);
-
-  // Convertir las coordenadas 3D a coordenadas 2D en la pantalla
-  const screenTopLeft = projectToScreen(topLeft);
-  const screenTopRight = projectToScreen(topRight);
-  const screenBottomLeft = projectToScreen(bottomLeft);
-  const screenBottomRight = projectToScreen(bottomRight);
-
-  // Calcular las dimensiones y la posición del área activa
-  const width = screenTopRight.x - screenTopLeft.x;
-  const height = screenTopLeft.y - screenBottomLeft.y;
-  const left = screenTopLeft.x;
-  const top = screenTopLeft.y;
-
-  // Actualizar el estilo del área activa
-  touchAreaMarker.style.display = 'block'; // Mostrar el área activa
-  touchAreaMarker.style.left = left + 'px';
-  touchAreaMarker.style.top = top + 'px';
-  touchAreaMarker.style.width = width + 'px';
-  touchAreaMarker.style.height = height + 'px';
-}
-
-// Función para proyectar las coordenadas 3D a 2D
-function projectToScreen(vector) {
-  const widthHalf = window.innerWidth / 2;
-  const heightHalf = window.innerHeight / 2;
-
-  vector.project(camera);
-
-  return {
-    x: (vector.x * widthHalf) + widthHalf,
-    y: -(vector.y * heightHalf) + heightHalf,
-  };
-}
-
-// Llamar a la función para actualizar el área activa cuando se cargue la escena
-updateTouchAreaMarker();
 
   </script>
 </body>
