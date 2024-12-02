@@ -19,7 +19,7 @@
       align-items: center;
       overflow: hidden; /* Para evitar scroll */
     }
-
+  
     canvas {
       display: block; /* Asegura que no haya márgenes extraños */
     }
@@ -28,15 +28,13 @@
   <!-- Metaetiquetas para Open Graph --> 
    <meta property="og:title" content="Invitación Boda Juli & Alex"> 
    <meta property="og:description" content="¡Estás invitado a nuestra boda!"> 
-   <meta property="og:image" content="https://i.imgur.com/a4T0Fcvs.png"> 
-   <meta property="og:image" content="https://i.imgur.com/a4T0Fcv.png"> 
+   <meta property="og:image" content="https://i.imgur.com/u50k2nG.jpg"> 
    <meta property="og:url" content="https://julianrkc.github.io/Invitaciones/"> 
    <meta property="og:type" content="website"> <!-- Metaetiquetas para Twitter Card --> 
    <meta name="twitter:card" content="summary_large_image"> 
    <meta name="twitter:title" content="Invitación Boda Juli & Alex"> 
    <meta name="twitter:description" content="¡Estás invitado a nuestra boda!"> 
-   <meta name="twitter:image" content="https://i.imgur.com/a4T0Fcvs.png">
-   <meta name="twitter:image" content="https://i.imgur.com/a4T0Fcv.png">
+   <meta name="twitter:image" content="https://i.imgur.com/u50k2nG.jpg">
 </head>
 <body class="background">
   <script src="https://cdn.jsdelivr.net/npm/three@0.147/build/three.min.js"></script>
@@ -387,72 +385,15 @@ document.addEventListener('touchmove', (event) => {
   initialMouseY = event.touches[0].clientY;
 });
 
-// Manejador de eventos de clic
-function onButtonClick(event) {
-  const mouse = new THREE.Vector2(
-    (event.clientX / window.innerWidth) * 2 - 1,
-    -(event.clientY / window.innerHeight) * 2 + 1
-  );
+const markerGeometry = new THREE.SphereGeometry(0.05);
+const markerMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+scene.add(marker);
 
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-
-  const intersects = raycaster.intersectObject(buttonMesh);
-  if (intersects.length > 0) {
-    buttonMesh.userData.onClick();
-  }
+if (intersects.length > 0) {
+  marker.position.copy(intersects[0].point);
 }
 
-// Eventos táctiles
-window.addEventListener('touchstart', (event) => {
-  if (event.touches.length === 1) {
-    onButtonClick(event.touches[0]);
-  }
-  initialMouseX = event.touches[0].clientX;
-  initialMouseY = event.touches[0].clientY;
-  isDragging = true;
-});
-
-window.addEventListener('touchmove', (event) => {
-  if (!isDragging || event.touches.length !== 1) return;
-
-  const deltaX = event.touches[0].clientX - initialMouseX;
-  const deltaY = event.touches[0].clientY - initialMouseY;
-
-  cardGroup.rotation.y += deltaX / 100;
-  cardGroup.rotation.x += deltaY / 100;
-
-  initialMouseX = event.touches[0].clientX;
-  initialMouseY = event.touches[0].clientY;
-});
-
-window.addEventListener('touchend', () => {
-  isDragging = false;
-});
-
-// Depuración
-buttonMesh.userData = {
-  onClick: () => {
-    console.log('Button clicked!');
-    window.open('https://www.bodas.net/web/juli-y-alex', '_blank');
-  }
-};
-
-window.addEventListener('click', (event) => {
-  console.log('Click event detected');
-  const mouse = new THREE.Vector2(
-    (event.clientX / window.innerWidth) * 2 - 1,
-    -(event.clientY / window.innerHeight) * 2 + 1
-  );
-
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-
-  const intersects = raycaster.intersectObject(buttonMesh);
-  if (intersects.length > 0) {
-    buttonMesh.userData.onClick();
-  }
-});
 
   </script>
 </body>
