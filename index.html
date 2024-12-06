@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invitación Boda Juli & Alex</title>
   <style>
-    body { margin: 0; }
+    body {
+      margin: 0;
+    }
   </style>
 </head>
 <body>
@@ -15,13 +17,17 @@
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Luz básica
+    // Agregamos una luz básica para iluminar la escena
     const light = new THREE.PointLight(0xffffff, 1, 100);
     light.position.set(5, 5, 5);
     scene.add(light);
+
+    // Configuramos la luz para que no proyecte sombras
+    light.castShadow = false;
 
     // Geometría de la tarjeta
     const cardWidth = 4;
@@ -30,8 +36,18 @@
 
     // Crear texturas para el frente y el reverso
     const textureLoader = new THREE.TextureLoader();
-    const textureFront = textureLoader.load('https://i.imgur.com/u50k2nG.jpg');
-    const textureBack = textureLoader.load('https://i.imgur.com/eznklmM.jpg');
+
+    const textureFront = textureLoader.load('https://i.imgur.com/u50k2nG.jpg', (texture) => {
+    texture.minFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+});
+
+    const textureBack = textureLoader.load('https://i.imgur.com/eznklmM.jpg', (texture) => {
+    texture.minFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+});
+
+
 
     // Materiales para cada cara (usamos MeshBasicMaterial para evitar sombras y efectos de iluminación)
     const frontMaterial = new THREE.MeshBasicMaterial({ map: textureFront, side: THREE.FrontSide });
@@ -40,8 +56,11 @@
     // Creamos las caras de la tarjeta
     const frontMesh = new THREE.Mesh(cardGeometry, frontMaterial);
     const backMesh = new THREE.Mesh(cardGeometry.clone(), backMaterial);
-    
-    // Desactivamos sombras en las mallas
+
+    // Invertir la textura de la parte trasera
+    backMesh.scale.x = -1;
+
+    // Desactivar sombras en las mallas
     frontMesh.castShadow = false;
     frontMesh.receiveShadow = false;
     backMesh.castShadow = false;
@@ -53,7 +72,11 @@
 
     // Crear una malla blanca para rellenar el centro de la tarjeta
     const thicknessGeometry = new THREE.BoxGeometry(cardWidth, cardHeight, 0.095); // Grosor reducido
-    const thicknessMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: false });
+    const thicknessMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff, // Color blanco
+      side: THREE.DoubleSide, // Mostrar ambos lados
+      transparent: false, // Totalmente opaco
+    });
     const thicknessMesh = new THREE.Mesh(thicknessGeometry, thicknessMaterial);
     thicknessMesh.position.z = 0; // Posicionar en el centro entre las caras
 
@@ -65,28 +88,6 @@
 
     // Agregamos el grupo de la tarjeta a la escena
     scene.add(cardGroup);
-
-    // Función para calcular la distancia desde la cámara
-    function getDistanceToCamera(mesh) {
-      const vector = new THREE.Vector3();
-      mesh.getWorldPosition(vector); // Obtener la posición mundial de la cara
-      return vector.distanceTo(camera.position); // Calcular la distancia desde la cámara
-    }
-
-    // Función para recalcular la posición de la tarjeta tras el movimiento
-    function resetCardPosition() {
-      // Calculamos las distancias de las dos caras desde la cámara
-      const frontDistance = getDistanceToCamera(frontMesh);
-      const backDistance = getDistanceToCamera(backMesh);
-
-// Si la distancia a la cara trasera es menor, ajustar la rotación para mostrar el reverso invertido (parte superior hacia abajo)
-if (backDistance < frontDistance) {
-  cardGroup.rotation.set(Math.PI, 0, Math.PI); // Rota 180 grados en el eje X y 180 grados en el eje Z para invertir la orientación
-} else {
-  cardGroup.rotation.set(0, 0, 0); // Restaura la rotación para que el frente quede visible
-}
-
-}
 
     // Crear un botón con bordes redondeados
     const buttonWidth = 1.0;
@@ -106,11 +107,14 @@ if (backDistance < frontDistance) {
     shape.quadraticCurveTo(-buttonWidth / 2, -buttonHeight / 2, -buttonWidth / 2 + radius, -buttonHeight / 2);
 
     const buttonGeometry = new THREE.ShapeGeometry(shape);
-    const buttonMaterial = new THREE.MeshBasicMaterial({ color: 0x192B5B, side: THREE.DoubleSide });
+    const buttonMaterial = new THREE.MeshBasicMaterial({
+      color: 0x192B5B, // Color del botón
+      side: THREE.DoubleSide,
+    });
     const buttonMesh = new THREE.Mesh(buttonGeometry, buttonMaterial);
 
     // Posicionar el botón ligeramente sobre la parte trasera de la tarjeta
-    buttonMesh.position.set(0, 0.35, -0.055); // Ajustar para que esté justo sobre la cara trasera, sin atravesar
+    buttonMesh.position.set(0, 0.65, -0.055); // Ajustar para que esté justo sobre la cara trasera, sin atravesar
     buttonMesh.rotation.x = -2 * Math.PI / 2; // Rotar para que quede plano sobre la cara trasera
 
     // Crear el texto como un sprite
@@ -154,7 +158,6 @@ if (backDistance < frontDistance) {
 
     document.addEventListener('mouseup', () => {
       isDragging = false;
-      resetCardPosition(); // Restablecer la tarjeta a la cara más cercana
     });
 
     document.addEventListener('mousemove', (event) => {
@@ -171,6 +174,33 @@ if (backDistance < frontDistance) {
       initialMouseY = event.clientY;
     });
 
+    // Manejar toques en dispositivos móviles
+    document.addEventListener('touchstart', (event) => {
+      if (event.touches.length === 1) {
+        isDragging = true;
+        initialMouseX = event.touches[0].clientX;
+        initialMouseY = event.touches[0].clientY;
+      }
+    });
+
+    document.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+
+    document.addEventListener('touchmove', (event) => {
+      if (!isDragging || event.touches.length !== 1) return;
+
+      const deltaX = event.touches[0].clientX - initialMouseX;
+      const deltaY = event.touches[0].clientY - initialMouseY;
+
+      // Rotamos el grupo de la tarjeta
+      cardGroup.rotation.y += deltaX / 100;
+      cardGroup.rotation.x += deltaY / 100;
+
+      initialMouseX = event.touches[0].clientX;
+      initialMouseY = event.touches[0].clientY;
+    });
+
     // Función para redirigir al hacer clic en el botón
     buttonMesh.userData = {
       onClick: () => {
@@ -179,19 +209,19 @@ if (backDistance < frontDistance) {
     };
 
     window.addEventListener('click', (event) => {
-      const mouse = new THREE.Vector2(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1
-      );
+  const mouse = new THREE.Vector2(
+    (event.clientX / window.innerWidth) * 2 - 1,
+    -(event.clientY / window.innerHeight) * 2 + 1
+  );
 
-      const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(mouse, camera);
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
 
-      const intersects = raycaster.intersectObject(buttonMesh);
-      if (intersects.length > 0) {
-        buttonMesh.userData.onClick();
-      }
-    });
+  const intersects = raycaster.intersectObject(buttonMesh);
+  if (intersects.length > 0) {
+    buttonMesh.userData.onClick();
+  }
+});
 
     // Animación
     function animate() {
@@ -200,5 +230,4 @@ if (backDistance < frontDistance) {
     }
     animate();
   </script>
-</body>
-</html>
+</body
