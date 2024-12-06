@@ -70,12 +70,12 @@ document.body.appendChild(renderer.domElement);
     // Crear texturas para el frente y el reverso
     const textureLoader = new THREE.TextureLoader();
 
-    const textureFront = textureLoader.load('https://i.imgur.com/dkz8noY.jpg', (texture) => {
+    const textureFront = textureLoader.load('https://i.imgur.com/u50k2nG.jpg', (texture) => {
     texture.minFilter = THREE.LinearFilter;
     texture.generateMipmaps = false;
 });
 
-    const textureBack = textureLoader.load('https://i.imgur.com/fTpoPc4.jpg', (texture) => {
+    const textureBack = textureLoader.load('https://i.imgur.com/eznklmM.jpg', (texture) => {
     texture.minFilter = THREE.LinearFilter;
     texture.generateMipmaps = false;
 });
@@ -384,16 +384,6 @@ document.addEventListener('touchmove', (event) => {
   initialMouseX = event.touches[0].clientX;
   initialMouseY = event.touches[0].clientY;
 });
-
-const markerGeometry = new THREE.SphereGeometry(0.05);
-const markerMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-const marker = new THREE.Mesh(markerGeometry, markerMaterial);
-scene.add(marker);
-
-if (intersects.length > 0) {
-  marker.position.copy(intersects[0].point);
-}
-
 
   </script>
 </body>
