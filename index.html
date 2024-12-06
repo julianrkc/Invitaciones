@@ -5,54 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invitación Boda Juli & Alex</title>
 
+<!-- Open Graph Meta Tags --> 
+  <meta property="og:title" content="Invitación Boda Juli & Alex"> 
+  <meta property="og:description" content="¡Estamos felices de invitarte a nuestra boda! Haz clic para ver más detalles."> 
+  <meta property="og:image" content="https://i.imgur.com/u50k2nG.jpg"> <meta property="og:image:width" content="400"> 
+  <meta property="og:image:height" content="400"> <meta property="og:url" content="https://julianrkc.github.io/Invitaciones/"> 
+  <meta property="og:type" content="website"> 
+  
+  <!-- Twitter Fallback --> 
+  <meta name="twitter:card" content="summary_large_image"> 
+  <meta name="twitter:title" content="Invitación Boda Juli & Alex"> 
+  <meta name="twitter:description" content="¡Estamos felices de invitarte a nuestra boda! Haz clic para ver más detalles.">
+  <meta name="twitter:image" content="https://i.imgur.com/u50k2nG.jpg">
+  
   <style>
-    /* Establecer fondo con CSS */
     body {
       margin: 0;
-      height: 100vh; /* Asegura que el body tenga la altura completa de la ventana */
-      background-image: url('https://i.imgur.com/UqC5I5z.png');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden; /* Para evitar scroll */
-    }
-  
-    canvas {
-      display: block; /* Asegura que no haya márgenes extraños */
     }
   </style>
-
-  <!-- Metaetiquetas para Open Graph --> 
-   <meta property="og:title" content="Invitación Boda Juli & Alex"> 
-   <meta property="og:description" content="¡Estás invitado a nuestra boda!"> 
-   <meta property="og:image" content="https://i.imgur.com/u50k2nG.jpg"> 
-   <meta property="og:url" content="https://julianrkc.github.io/Invitaciones/"> 
-   <meta property="og:type" content="website"> <!-- Metaetiquetas para Twitter Card --> 
-   <meta name="twitter:card" content="summary_large_image"> 
-   <meta name="twitter:title" content="Invitación Boda Juli & Alex"> 
-   <meta name="twitter:description" content="¡Estás invitado a nuestra boda!"> 
-   <meta name="twitter:image" content="https://i.imgur.com/u50k2nG.jpg">
 </head>
-<body class="background">
+<body>
   <script src="https://cdn.jsdelivr.net/npm/three@0.147/build/three.min.js"></script>
   <script>
     // Escena 3D
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    // Establecer el renderer con fondo transparente
-const renderer = new THREE.WebGLRenderer({ 
-  antialias: true, 
-  powerPreference: 'high-performance',
-  alpha: true // Fondo transparente
-});
-
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
     // Agregamos una luz básica para iluminar la escena
     const light = new THREE.PointLight(0xffffff, 1, 100);
@@ -79,6 +60,7 @@ document.body.appendChild(renderer.domElement);
     texture.minFilter = THREE.LinearFilter;
     texture.generateMipmaps = false;
 });
+
 
 
     // Materiales para cada cara (usamos MeshBasicMaterial para evitar sombras y efectos de iluminación)
@@ -255,135 +237,11 @@ document.body.appendChild(renderer.domElement);
   }
 });
 
-let angle = 0;
-let isInteracting = false;
-let isFront = true; // Variable para rastrear la cara actual de la tarjeta
-let targetRotationY = 0; // Variable para rastrear la rotación objetivo
-let startRotationY = 0;
-let isFlipping = false; // Variable para evitar que se haga flip múltiples veces
-
-// Animación
-function animate() {
-  requestAnimationFrame(animate);
-
-  if (!isInteracting) {
-    // Movimiento vibrante de balanceo
-    angle += 0.02;
-    cardGroup.rotation.y = targetRotationY + 0.1 * Math.sin(angle);
-  }
-
-  renderer.render(scene, camera);
-}
-animate();
-
-// Función para girar la tarjeta
-function flipCard() {
-  if (isFlipping) return;
-  isFlipping = true;
-
-  // Comprobar la cara actual de la tarjeta
-  const currentRotation = (Math.abs(cardGroup.rotation.y) % (2 * Math.PI));
-  const shouldFlipToBack = currentRotation < Math.PI / 2 || currentRotation > (3 * Math.PI) / 2;
-
-  const rotationAngle = shouldFlipToBack ? Math.PI : 0;
-  const flipDuration = 500; // Duración de la animación en milisegundos
-
-  // Animación de la tarjeta para girarla
-  const startTime = performance.now();
-  function flipAnimation(time) {
-    const progress = (time - startTime) / flipDuration;
-    if (progress < 1) {
-      cardGroup.rotation.y = THREE.MathUtils.lerp(startRotationY, rotationAngle, progress);
-      requestAnimationFrame(flipAnimation);
-    } else {
-      cardGroup.rotation.y = rotationAngle;
-      isFront = !isFront; // Alternar la cara actual al final de la animación
-      targetRotationY = rotationAngle; // Actualizar la rotación objetivo
-      isFlipping = false;
+    // Animación
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
     }
-  }
-  requestAnimationFrame(flipAnimation);
-}
-
-// Función para ajustar la tarjeta a la cara más cercana
-function adjustCard() {
-  const currentRotation = (Math.abs(cardGroup.rotation.y) % (2 * Math.PI));
-  const closestFace = currentRotation < Math.PI / 2 || (currentRotation > (3 * Math.PI) / 2 && currentRotation < (2 * Math.PI)) ? 0 : Math.PI;
-
-  const adjustDuration = 300; // Duración de la animación para ajustar
-  const startTime = performance.now();
-  function adjustAnimation(time) {
-    const progress = (time - startTime) / adjustDuration;
-    if (progress < 1) {
-      cardGroup.rotation.y = THREE.MathUtils.lerp(cardGroup.rotation.y, closestFace, progress);
-      requestAnimationFrame(adjustAnimation);
-    } else {
-      cardGroup.rotation.y = closestFace;
-      targetRotationY = closestFace;
-      isFront = (closestFace === 0); // Actualizar la cara actual
-    }
-  }
-  requestAnimationFrame(adjustAnimation);
-}
-
-// Interacción con el ratón y el toque
-document.addEventListener('mousedown', (event) => {
-  isInteracting = true;
-  initialMouseX = event.clientX;
-  initialMouseY = event.clientY;
-  startRotationY = cardGroup.rotation.y;
-});
-
-document.addEventListener('mouseup', (event) => {
-  isInteracting = false;
-  adjustCard(); // Ajustar la tarjeta a la cara más cercana al soltar el ratón
-});
-
-document.addEventListener('mousemove', (event) => {
-  if (!isInteracting) return;
-
-  const deltaX = event.clientX - initialMouseX;
-  const deltaY = event.clientY - initialMouseY;
-
-  // Rotamos el grupo de la tarjeta en ambas direcciones
-  cardGroup.rotation.y += deltaX / 100;
-  cardGroup.rotation.x += deltaY / 100;
-
-  targetRotationY = cardGroup.rotation.y; // Actualizar la rotación objetivo
-
-  initialMouseX = event.clientX;
-  initialMouseY = event.clientY;
-});
-
-document.addEventListener('touchstart', (event) => {
-  if (event.touches.length === 1) {
-    isInteracting = true;
-    initialMouseX = event.touches[0].clientX;
-    initialMouseY = event.touches[0].clientY;
-    startRotationY = cardGroup.rotation.y;
-  }
-});
-
-document.addEventListener('touchend', (event) => {
-  isInteracting = false;
-  adjustCard(); // Ajustar la tarjeta a la cara más cercana al soltar el toque
-});
-
-document.addEventListener('touchmove', (event) => {
-  if (!isInteracting || event.touches.length !== 1) return;
-
-  const deltaX = event.touches[0].clientX - initialMouseX;
-  const deltaY = event.touches[0].clientY - initialMouseY;
-
-  // Rotamos el grupo de la tarjeta en ambas direcciones
-  cardGroup.rotation.y += deltaX / 100;
-  cardGroup.rotation.x += deltaY / 100;
-
-  targetRotationY = cardGroup.rotation.y; // Actualizar la rotación objetivo
-
-  initialMouseX = event.touches[0].clientX;
-  initialMouseY = event.touches[0].clientY;
-});
-
+    animate();
   </script>
-</body>
+</body
