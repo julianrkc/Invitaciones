@@ -5,37 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invitación Boda Juli & Alex</title>
   <style>
-    /* Establecer fondo con CSS */
     body {
       margin: 0;
-      height: 100vh; /* Asegura que el body tenga la altura completa de la ventana */
-      background-image: url('https://i.imgur.com/UqC5I5z.png');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden; /* Para evitar scroll */
-    }
-  
-    canvas {
-      display: block; /* Asegura que no haya márgenes extraños */
     }
   </style>
-
-  <!-- Metaetiquetas para Open Graph --> 
-   <meta property="og:title" content="Invitación Boda Juli & Alex"> 
-   <meta property="og:description" content="¡Estás invitado a nuestra boda!"> 
-   <meta property="og:image" content="https://i.imgur.com/u50k2nG.jpg"> 
-   <meta property="og:url" content="https://julianrkc.github.io/Invitaciones/"> 
-   <meta property="og:type" content="website"> <!-- Metaetiquetas para Twitter Card --> 
-   <meta name="twitter:card" content="summary_large_image"> 
-   <meta name="twitter:title" content="Invitación Boda Juli & Alex"> 
-   <meta name="twitter:description" content="¡Estás invitado a nuestra boda!"> 
-   <meta name="twitter:image" content="https://i.imgur.com/u50k2nG.jpg">
 </head>
-<body class="background">
+<body>
   <script src="https://cdn.jsdelivr.net/npm/three@0.147/build/three.min.js"></script>
   <script>
     // Escena 3D
@@ -271,8 +246,6 @@ function animate() {
   }
 
   renderer.render(scene, camera);
-  renderer.setClearColor(0xffffff, 0); // Fondo transparente
-
 }
 animate();
 
