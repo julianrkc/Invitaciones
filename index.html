@@ -7,6 +7,16 @@
   <style>
     body {
       margin: 0;
+      height: 100vh; /* Asegura que el body tenga la altura completa de la ventana */
+      overflow: hidden; /* Para evitar el desplazamiento de la página */
+      background-image: url('https://i.imgur.com/UqC5I5z.png');
+      background-size: cover; /* Asegura que la imagen cubra toda el área */
+      background-position: center; /* Centra la imagen */
+      background-repeat: no-repeat;
+    }
+
+    canvas {
+      display: block; /* Asegura que no haya márgenes extraños */
     }
   </style>
 </head>
@@ -21,17 +31,6 @@
   powerPreference: 'high-performance', 
   alpha: true // Esto hace que el fondo del canvas sea transparente
 });
-
-// Cargar la imagen de fondo
-const backgroundTexture = new THREE.TextureLoader().load('https://i.imgur.com/UqC5I5z.png');
-scene.background = backgroundTexture;  // Establecer como fondo de la escena
-
-    // Ajustar el tamaño del canvas de Three.js
-    window.addEventListener('resize', () => {
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-    });
 
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
