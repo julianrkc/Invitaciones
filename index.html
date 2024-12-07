@@ -26,6 +26,13 @@
 const backgroundTexture = new THREE.TextureLoader().load('https://i.imgur.com/UqC5I5z.png');
 scene.background = backgroundTexture;  // Establecer como fondo de la escena
 
+    // Ajustar el tamaño del canvas de Three.js
+    window.addEventListener('resize', () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
